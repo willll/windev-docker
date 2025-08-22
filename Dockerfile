@@ -23,7 +23,6 @@ RUN apt-get update && \
  bash \
  bison \
  bzip2 \
- cmake \
  flex \
  g++ \
  g++-multilib \
@@ -58,6 +57,14 @@ RUN apt-get update && \
  xz-utils
 
 # Install MXE and build required packages
-RUN git clone --depth1 https://github.com/mxe/mxe/ . && \
- make boost libftdi1 bfd zlib cmake MXE_USE_CCACHE= MXE_TARGETS='x86_64-w64-mingw32.static' && \
+RUN git clone --depth 1 https://github.com/mxe/mxe/ . && \
+ make boost libftdi1 zlib cmake cmake-conf ninja pkgconf \
+ MXE_USE_CCACHE= MXE_TARGETS='x86_64-w64-mingw32.static' && \
  rm logs .ccache pkg -rf
+
+ENV CMAKE_MODULE_PATH=/opt/mxe-w64/usr/x86_64-pc-linux-gnu/share/cmake-3.31/Modules/
+ENV Boost_DIR=/opt/mxe-w64/usr/x86_64-w64-mingw32.static/lib/cmake/Boost-1.85.0/
+ENV PKG_CONFIG_PATH=/opt/mxe-w64/usr/x86_64-w64-mingw32.static/lib/pkgconfig/
+ENV PATH="${PATH}:/opt/mxe-w64/usr/bin"
+
+RUN ln -s /opt/mxe-w64/usr/bin/x86_64-w64-mingw32.static-cmake /usr/bin/cmake
